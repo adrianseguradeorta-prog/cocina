@@ -62,5 +62,6 @@ jobs:
           git add Mi_despensa_webapp_iPhone.zip
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar ZIP de Mi despensa"
-            git push
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git push origin "HEAD:$GITHUB_REF_NAME"
           fi
