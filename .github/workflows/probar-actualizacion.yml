@@ -1,7 +1,7 @@
 name: Comprobar actualización sin afectar la app publicada
 on:
   push:
-    branches: [actualizacion-despensa-v2]
+    branches: [actualizacion-despensa-v2, actualizacion-recetas-v3]
   workflow_dispatch:
 permissions:
   contents: read
