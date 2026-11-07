@@ -1,6 +1,6 @@
 # Mi despensa · planificador de 30 días
 
-Web app instalable para iPhone, con compras, 28 días de menú y 40 recetas de despensa. La semana sin fuego incluye siete días.
+Web app instalable para iPhone, con compras, 28 días de menú y 180 recetas de despensa. La semana sin fuego incluye siete días.
 
 ## Abrir e instalar
 
@@ -14,9 +14,9 @@ Abre la dirección en Safari y selecciona **Compartir → Añadir a pantalla de 
 
 - **Compra:** selecciona plan y número de adultos. Verás el coste pendiente por envases y el descuento de lo que ya tienes. Puedes elegir entre «reserva del plan + menú» y «solo lo necesario para el menú».
 - **Menús:** 28 días (o siete sin fuego), con desayuno, comida y cena. Cada plato tiene un enlace a su receta y un desplegable para cambiarlo.
-- **Recetas:** buscador de texto e ingredientes; abre cualquier receta desde el menú o la despensa.
+- **Recetas:** recetario ampliado a 180 recetas (140 nuevas), con buscador por nombre e ingredientes y filtro por categorías. Abre cualquier receta desde el menú o la despensa.
 - **Mi despensa:** marca los productos disponibles e indica cuántos envases completos tienes. La app propone recetas con todos sus ingredientes y otras para las que te falta poco. El menú da preferencia a lo disponible.
-- **No me gusta:** marca ingredientes o recetas que quieres evitar. Las recetas incompatibles dejan de ofrecerse, y la compra se recalcula.
+- **No me gusta:** buscador autocompletable sobre todo el catálogo. Al escribir «maca» aparecen «macarrones» como ingrediente y las recetas que coinciden; puedes excluir un alimento entero o solamente platos concretos y revertir la selección. El menú y la compra se recalculan.
 - **Actualizaciones:** cuando se abre o se vuelve a la aplicación con conexión, consulta \`version.json\` y comprueba su service worker. Si hay cambios, presenta un aviso; **no interrumpe la sesión ni borra las compras**. El cambio se aplica cuando pulsas «Actualizar ahora».
 
 Los cambios se guardan en el almacenamiento local de ese navegador; no se sincronizan entre varios teléfonos. La compra marcada en la versión anterior se migra la primera vez que se inicia la nueva. No se descuentan automáticamente los ingredientes por consultar una receta.
@@ -37,4 +37,4 @@ Para mantener el servicio durante una actualización, desarrolla y prueba en una
 
 ## Seguridad y privacidad
 
-No utilices hornillos, braseros ni equipos de combustión no autorizados dentro de la vivienda. Consulta las condiciones del fabricante, la seguridad de la conservación y las necesidades especiales de cada persona. Los precios de noviembre de 2026 son orientativos. No se envía el inventario doméstico a ningún servidor de la aplicación.
+No utilices hornillos, braseros ni equipos de combustión no autorizados dentro de la vivienda. Consulta las condiciones del fabricante, la seguridad de la conservación y las necesidades especiales de cada persona. Los precios de noviembre de 2026 son orientativos. La guía impresa incluida sigue siendo la edición original de 40 recetas; las 180 están disponibles en esta aplicación web y en sus archivos descargables. No se envía el inventario doméstico a ningún servidor de la aplicación.
