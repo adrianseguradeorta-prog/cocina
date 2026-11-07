@@ -1,7 +1,7 @@
 name: Generar ZIP descargable de Mi despensa
 on:
   push:
-    branches: [main, actualizacion-despensa-v2]
+    branches: [main, actualizacion-despensa-v2, actualizacion-recetas-v3]
     paths:
       - '.github/workflows/generar-descargas.yml'
       - 'index.html'
