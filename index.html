@@ -7,27 +7,40 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mi despensa">
+<meta name="description" content="Listas de la compra, menús y recetas para tener un mes de comida en casa.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="stylesheet" href="./style.css">
 <title>Mi despensa · 30 días</title>
-<style>body{background:#f5f4ef;color:#153b35;font:16px -apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:0}#content{min-height:15vh}</style>
 </head>
 <body>
-<header><div class="brand"><div class="logo">◒</div><div><small>PLAN DOMÉSTICO · NOVIEMBRE 2026</small><h1>Mi despensa</h1></div></div><button class="print" onclick="window.print()">Imprimir</button></header>
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true">◒</div><div><small>PLAN DOMÉSTICO · NOVIEMBRE 2026</small><h1>Mi despensa</h1></div></div>
+  <div class="header-actions"><a class="print" href="./Guia_despensa_30_dias_noviembre_2026.pdf" target="_blank" rel="noopener">Guía PDF</a><button class="print" type="button" onclick="window.print()">Imprimir</button></div>
+</header>
 <main>
 <section class="hero">
-<div><span class="eyebrow">PREPARADOS PARA 30 DÍAS</span><h2>Comer bien, incluso si se va la luz.</h2><p>Tu compra, tus menús y tus recetas, organizados en un solo sitio. Funciona sin conexión después de abrirla una vez.</p></div>
-<div class="hero-stat"><span>Presupuesto estimado</span><strong id="budget">42,80 €</strong><small id="budgetdesc">1 adulto · 30 días</small></div>
+  <div><span class="eyebrow">PREPARADOS PARA 30 DÍAS</span><h2>Comer bien, incluso si se va la luz.</h2><p>Tu compra, tus menús y tus recetas, organizados en un solo sitio. Después de abrirla una vez, puedes consultarla sin conexión.</p></div>
+  <div class="hero-stat"><span>Presupuesto estimado</span><strong id="budget">—</strong><small id="budgetdesc">1 adulto · 30 días</small></div>
 </section>
 <section class="controls">
-<label>Plan<select id="plan"><option value="basico">Básico</option><option value="equilibrado">Equilibrado</option><option value="comodo">Cómodo</option><option value="sinfuego">Semana sin fuego</option></select></label>
-<label>Personas<input id="people" type="number" min="1" max="20" value="1"></label>
-<label>Buscar<input id="search" type="search" placeholder="Arroz, lentejas, desayunos..."></label>
+  <label>Plan<select id="plan"><option value="basico">Básico</option><option value="equilibrado">Equilibrado</option><option value="comodo">Cómodo</option><option value="sinfuego">Semana sin fuego</option></select></label>
+  <label>Personas<input id="people" type="number" min="1" max="20" value="1"></label>
+  <label>Buscar<input id="search" type="search" placeholder="Arroz, lentejas, desayunos..."></label>
 </section>
-<nav id="tabs"><button data-tab="compra" class="active">Compra</button><button data-tab="menu">Menús</button><button data-tab="recetas">Recetas</button><button data-tab="seguridad">Sin luz y seguridad</button><button data-tab="fuentes">Fuentes</button></nav>
-<section id="content" aria-live="polite"><p>Cargando guía y listas de compra…</p></section>
-<footer>Precios observados en noviembre de 2026; pueden variar por tienda. La lista se calcula por envases completos. No sustituye una dieta individualizada.</footer>
+<nav id="tabs" aria-label="Secciones de la aplicación">
+  <button type="button" data-tab="compra" class="active">Compra</button>
+  <button type="button" data-tab="menu">Menús</button>
+  <button type="button" data-tab="recetas">Recetas</button>
+  <button type="button" data-tab="seguridad">Sin luz y seguridad</button>
+  <button type="button" data-tab="fuentes">Fuentes</button>
+</nav>
+<section id="content" aria-live="polite"><p>Preparando listas de compra…</p></section>
+<footer>Precios orientativos de noviembre de 2026; pueden variar por tienda. Las cantidades se calculan por envases completos. No sustituye una dieta individualizada. <a href="./Guia_despensa_30_dias_noviembre_2026.pdf">Consultar la guía completa en PDF</a>.</footer>
 </main>
-<noscript>Para usar la calculadora y las listas necesitas activar JavaScript en el navegador.</noscript>
-<script src="./payload.js"></script><script src="./bootstrap.js"></script>
-</body></html>
+<noscript>Para usar la calculadora y las listas necesitas activar JavaScript en Safari.</noscript>
+<script defer src="./data.js"></script>
+<script defer src="./app.js"></script>
+</body>
+</html>

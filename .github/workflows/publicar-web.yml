@@ -1,0 +1,72 @@
+name: Publicar Mi despensa para iPhone
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'style.css'
+      - 'data.js'
+      - 'app.js'
+      - 'sw.js'
+      - 'manifest.webmanifest'
+      - 'icon-192.png'
+      - 'icon-512.png'
+      - 'Guia_despensa_30_dias_noviembre_2026.pdf'
+      - '.github/workflows/publicar-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: mi-despensa-pages
+  cancel-in-progress: true
+
+jobs:
+  verificar-y-publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Obtener archivos
+        uses: actions/checkout@v4
+      - name: Comprobar estructura y sintaxis
+        run: |
+          node --check data.js
+          node --check app.js
+          node --check sw.js
+          node - <<'NODE'
+          const fs = require('node:fs');
+          for(const name of ['index.html','style.css','data.js','app.js','sw.js','manifest.webmanifest','icon-192.png','icon-512.png','Guia_despensa_30_dias_noviembre_2026.pdf']){
+            if(!fs.existsSync(name)) throw new Error('Falta ' + name);
+          }
+          const html = fs.readFileSync('index.html','utf8');
+          for(const name of ['style.css','data.js','app.js','manifest.webmanifest']){
+            if(!html.includes('./'+name)) throw new Error('Falta la referencia a '+name);
+          }
+          const js = fs.readFileSync('data.js','utf8');
+          if(!js.includes('window.COCINA_DATA=')) throw new Error('Faltan datos de la aplicación');
+          const d = JSON.parse(js.split('window.COCINA_DATA=')[1].replace(/;\s*$/,''));
+          if(!d.plans || d.recipes.length !== 40 || d.menus.length !== 28) throw new Error('Datos incompletos');
+          console.log('Correcto: 28 días, 40 recetas y planes disponibles');
+          NODE
+      - name: Preparar web estática
+        run: |
+          mkdir -p _site
+          cp index.html style.css data.js app.js sw.js manifest.webmanifest icon-192.png icon-512.png Guia_despensa_30_dias_noviembre_2026.pdf Mi_despensa_webapp_iPhone.zip _site/
+          touch _site/.nojekyll
+      - name: Preparar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Subir archivos de la web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Publicar sitio
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: Mostrar dirección de la web
+        run: echo "Web publicada en ${{ steps.deploy.outputs.page_url }}"

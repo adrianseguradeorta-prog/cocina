@@ -1,21 +1,27 @@
 # Mi despensa · 30 días
 
-Aplicación web progresiva (PWA) de la guía «Un mes de comida en casa» (noviembre de 2026). Incluye listas de compra con cantidades y precios por persona, menús para 28 días, 40 recetas, semana sin fuego, recomendaciones de conservación y fuentes.
+Aplicación web progresiva (PWA) con listas de compra para 1–20 personas, 28 días de menús, 40 recetas, semana sin fuego y guía PDF imprimible.
 
-## Ver la aplicación
+## Uso en iPhone
 
-El punto de entrada es `index.html`. Para instalarla en un iPhone, es necesario alojar estos archivos por HTTPS; abre la URL en Safari y elige **Compartir → Añadir a pantalla de inicio**. Una vez abierta con Internet y guardados los recursos por el service worker, funciona sin conexión. No se ha publicado automáticamente una web pública.
+Una vez publicado el sitio, abrir la dirección HTTPS en Safari y tocar **Compartir → Añadir a pantalla de inicio**. La app funciona sin conexión después de que se hayan descargado sus recursos en la primera visita. Las compras marcadas se guardan en el teléfono, sin sincronización con otros dispositivos.
 
-## Archivos
+## Publicación con GitHub Pages
 
-- `index.html`: página y controles.
-- `payload.js`: datos, estilos y lógica originales comprimidos en gzip/base64 para transporte.
-- `bootstrap.js`: carga los recursos del paquete en el navegador.
-- `sw.js`: almacenamiento sin conexión.
-- `manifest.webmanifest` e iconos: instalación como web app.
+El repositorio incluye el workflow `.github/workflows/publicar-web.yml` que verifica los archivos y publica la web con GitHub Actions tras cada cambio en `main`.
 
-Los precios son orientativos y no se actualizan solos. Las casillas de compra se guardan en el navegador del propio dispositivo y no se sincronizan entre teléfonos. Requiere Safari moderno compatible con `DecompressionStream`.
+Si GitHub Pages aún no está habilitado, abrir **Settings → Pages → Build and deployment → Source → GitHub Actions**. Después se puede repetir el workflow desde la pestaña Actions. En cuentas GitHub Free, GitHub Pages exige un repositorio público; un repositorio privado requiere un plan compatible con GitHub Pages.
 
-## Seguridad
+La URL habitual de proyecto (solo una vez activado y desplegado) es `https://adrianseguradeorta-prog.github.io/cocina/`.
 
-Nunca utilizar hornillos, braseros, barbacoas ni generadores de combustión dentro de la vivienda. En los aparatos de gas seguir el manual del fabricante. Las recomendaciones generales de conservación no sustituyen las condiciones de seguridad de cada alimento o situación médica.
+## Archivos de la aplicación
+
+- `index.html`, `style.css`: interfaz adaptada a móvil.
+- `data.js`, `app.js`: menús, ingredientes, calculadora y recetas.
+- `sw.js`, `manifest.webmanifest`, iconos: aplicación instalable y uso sin conexión.
+- `Guia_despensa_30_dias_noviembre_2026.pdf`: guía A4.
+- `Mi_despensa_webapp_iPhone.zip`: copia descargable.
+
+El contenido de `payload.js` y `bootstrap.js` permanece como copia técnica previa; el sitio publicado carga `data.js` y `app.js` directamente.
+
+Los precios son orientativos; deben revisarse en la tienda. No enciendas hornillos o dispositivos de combustión en espacios interiores sin ventilación ni autorización del fabricante.
