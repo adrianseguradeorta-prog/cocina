@@ -1,38 +1,40 @@
-# Mi despensa · 30 días
+# Mi despensa · planificador de 30 días
 
-Web app para iPhone con listas de compra para 1–20 personas, menús para 28 días, 40 recetas, semana sin fuego y guía PDF A4.
+Web app instalable para iPhone, con compras, 28 días de menú y 40 recetas de despensa. La semana sin fuego incluye siete días.
 
-## Ponerla en marcha desde GitHub
+## Abrir e instalar
 
-La web está lista para publicarse desde la raíz de la rama `main`; no necesita servidor, base de datos ni compilación.
-
-1. Abrir [Settings → Pages](https://github.com/adrianseguradeorta-prog/cocina/settings/pages).
-2. En **Build and deployment**, elegir **Source: Deploy from a branch**.
-3. Elegir **Branch: main**, carpeta **/(root)** y pulsar **Save**.
-
-GitHub publica automáticamente el contenido de `main`. La dirección prevista es:
+La web se publica desde la rama **main** de GitHub Pages:
 
 **https://adrianseguradeorta-prog.github.io/cocina/**
 
-No consideres esa dirección operativa hasta que GitHub muestre que Pages se ha publicado. Esta opción necesita un plan compatible con Pages en repositorios privados (por ejemplo GitHub Pro). En GitHub Free es necesario usar un repositorio público o un servicio de hosting externo, como Vercel. **No cambies el repositorio a público sin valorar qué archivos quieres exponer.**
+Abre la dirección en Safari y selecciona **Compartir → Añadir a pantalla de inicio**. Si GitHub Pages no aparece disponible, comprueba su estado en [Settings → Pages](https://github.com/adrianseguradeorta-prog/cocina/settings/pages). El repositorio permanece privado; el sitio de Pages puede ser público aunque su código esté en un repositorio privado.
 
-Si la opción por rama no está disponible, también existe el workflow manual `Publicar Mi despensa para iPhone` para desplegar mediante **GitHub Actions** una vez habilitada esa fuente en Settings → Pages.
+## Funciones
 
-## Instalarla en iPhone
+- **Compra:** selecciona plan y número de adultos. Verás el coste pendiente por envases y el descuento de lo que ya tienes. Puedes elegir entre «reserva del plan + menú» y «solo lo necesario para el menú».
+- **Menús:** 28 días (o siete sin fuego), con desayuno, comida y cena. Cada plato tiene un enlace a su receta y un desplegable para cambiarlo.
+- **Recetas:** buscador de texto e ingredientes; abre cualquier receta desde el menú o la despensa.
+- **Mi despensa:** marca los productos disponibles e indica cuántos envases completos tienes. La app propone recetas con todos sus ingredientes y otras para las que te falta poco. El menú da preferencia a lo disponible.
+- **No me gusta:** marca ingredientes o recetas que quieres evitar. Las recetas incompatibles dejan de ofrecerse, y la compra se recalcula.
+- **Actualizaciones:** cuando se abre o se vuelve a la aplicación con conexión, consulta \`version.json\` y comprueba su service worker. Si hay cambios, presenta un aviso; **no interrumpe la sesión ni borra las compras**. El cambio se aplica cuando pulsas «Actualizar ahora».
 
-1. Abrir la dirección HTTPS de la web en **Safari**.
-2. Tocar **Compartir → Añadir a pantalla de inicio → Añadir**.
-3. Abrir el nuevo icono «Mi despensa» en la pantalla de inicio.
+Los cambios se guardan en el almacenamiento local de ese navegador; no se sincronizan entre varios teléfonos. La compra marcada en la versión anterior se migra la primera vez que se inicia la nueva. No se descuentan automáticamente los ingredientes por consultar una receta.
 
-Tras cargar todos sus recursos la primera vez, la app permite navegar, consultar menús y marcar compras sin Internet. Los datos de compra se guardan localmente en ese iPhone y no se sincronizan entre dispositivos.
+## Criterios de cálculo
 
-## Archivos
+- «Tengo» representa **un envase completo**. Para más unidades, usa + o −. No equivale a stock indefinido.
+- Las recetas usan cantidades estimadas por adulto para ajustar la compra. El presupuesto no es una garantía nutricional ni un precio cerrado; comprueba cantidades, raciones y precios antes de comprar.
+- Si no hay recetas compatibles con tus gustos, el menú deja el hueco sin inventar una preparación.
+- El modo «sin fuego» únicamente elige recetas marcadas sin cocción.
+- La recomendación «puedes cocinar con lo que tienes» comprueba ingredientes por receta, **no descuenta** cantidades de comidas anteriores. La lista de compra sí agrega las cantidades del menú.
 
-- `index.html` y `style.css`: interfaz.
-- `data.js` y `app.js`: calculadora, menús, recetas y listas.
-- `sw.js`, `manifest.webmanifest` e iconos: uso offline e instalación.
-- `Guia_despensa_30_dias_noviembre_2026.pdf`: PDF A4, también enlazado en la app.
-- `Mi_despensa_webapp_iPhone.zip`: descarga del paquete.
-- `payload.js` y `bootstrap.js`: copia técnica antigua; no se utilizan para iniciar la web publicada.
+## Ficheros y pruebas
 
-Los precios son orientativos de noviembre de 2026. Comprueba conservación y seguridad de cada alimento. No utilices hornillos, braseros ni aparatos de combustión no autorizados para interiores dentro de casa.
+\`index.html\`, \`style.css\`, \`data.js\`, \`logic.js\`, \`app.js\`, \`sw.js\`, \`version.json\`, \`manifest.webmanifest\`, iconos y guía PDF forman la PWA. \`tests/logic.test.js\` y \`tests/interface.test.js\` prueban las cuatro modalidades y la navegación. El workflow \`generar-descargas.yml\` crea el ZIP directamente desde estos archivos, sin recuperar versiones antiguas.
+
+Para mantener el servicio durante una actualización, desarrolla y prueba en una rama separada. Solo después de pasar las pruebas, fusiona los cambios en \`main\`. GitHub Pages despliega la nueva versión y quien tenga la app instalada verá un aviso al volver a utilizarla.
+
+## Seguridad y privacidad
+
+No utilices hornillos, braseros ni equipos de combustión no autorizados dentro de la vivienda. Consulta las condiciones del fabricante, la seguridad de la conservación y las necesidades especiales de cada persona. Los precios de noviembre de 2026 son orientativos. No se envía el inventario doméstico a ningún servidor de la aplicación.
