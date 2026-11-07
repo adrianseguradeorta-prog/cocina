@@ -1,0 +1,21 @@
+name: Comprobar actualización sin afectar la app publicada
+on:
+  push:
+    branches: [actualizacion-despensa-v2]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comprobar la sintaxis de la app
+        run: |
+          node --check data.js
+          node --check logic.js
+          node --check app.js
+          node --check sw.js
+          node --check tests/logic.test.js
+      - name: Ejecutar pruebas funcionales de planificación
+        run: node tests/logic.test.js
