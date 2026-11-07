@@ -1,72 +1,66 @@
-name: Generar guía PDF y ZIP
+name: Generar ZIP descargable de Mi despensa
 on:
   push:
-    branches: [main]
+    branches: [main, actualizacion-despensa-v2]
     paths:
-      - ".github/workflows/generar-descargas.yml"
-      - "payload.js"
-      - "pdf_builder.b64"
+      - '.github/workflows/generar-descargas.yml'
+      - 'index.html'
+      - 'style.css'
+      - 'data.js'
+      - 'logic.js'
+      - 'app.js'
+      - 'sw.js'
+      - 'manifest.webmanifest'
+      - 'version.json'
+      - 'icon-192.png'
+      - 'icon-512.png'
+      - 'Guia_despensa_30_dias_noviembre_2026.pdf'
   workflow_dispatch:
-
 permissions:
   contents: write
-
+concurrency:
+  group: mi-despensa-zip
+  cancel-in-progress: false
 jobs:
-  crear-archivos:
+  empaquetar:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-
-      - name: Preparar fuentes y librerías PDF
+      - name: Comprobar sintaxis de la app
         run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-lato
-          python -m pip install reportlab
-
-      - name: Recuperar las fuentes originales y los datos
-        run: |
-          node <<'NODE'
-          const fs = require('node:fs');
-          const zlib = require('node:zlib');
-          const raw = fs.readFileSync('payload.js','utf8');
-          const match = raw.match(/window\.COCINA_BUNDLE='([^']+)'/);
-          if (!match) throw new Error('No se ha encontrado el paquete de la aplicación');
-          const pack = JSON.parse(zlib.gunzipSync(Buffer.from(match[1], 'base64')).toString('utf8'));
-          for (const file of ['data.js','app.js','style.css']) fs.writeFileSync(file,pack[file]);
-          const dataSource = pack['data.js'];
-          fs.writeFileSync('datos.json', JSON.stringify(JSON.parse(dataSource.replace(/^window\.COCINA_DATA=/,'').replace(/;\s*$/,'')),null,2));
-          let source = zlib.gunzipSync(Buffer.from(fs.readFileSync('pdf_builder.b64','utf8').trim(),'base64')).toString('utf8');
-          source=source.replace("O='/mnt/data/cocina_mes'","O=os.getcwd()");
-          fs.writeFileSync('build_pdf.py',source);
-          NODE
-
-      - name: Construir PDF A4 de 30 páginas
-        run: python build_pdf.py
-
-      - name: Empaquetar web app para descarga
+          node --check data.js
+          node --check logic.js
+          node --check app.js
+          node --check sw.js
+      - name: Crear ZIP desde la versión actual
         run: |
           python - <<'PY'
-          import zipfile
-          assets=['index.html','bootstrap.js','payload.js','manifest.webmanifest','sw.js','icon-192.png','icon-512.png','style.css','data.js','app.js']
-          with zipfile.ZipFile('Mi_despensa_webapp_iPhone.zip','w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-              for file in assets: z.write(file)
+          import zipfile, pathlib
+          files = [
+            'index.html','style.css','data.js','logic.js','app.js',
+            'sw.js','manifest.webmanifest','version.json',
+            'icon-192.png','icon-512.png',
+            'Guia_despensa_30_dias_noviembre_2026.pdf'
+          ]
+          for file in files:
+              if not pathlib.Path(file).is_file():
+                  raise SystemExit('Falta archivo: '+file)
+          with zipfile.ZipFile('Mi_despensa_webapp_iPhone.zip','w',zipfile.ZIP_DEFLATED,compresslevel=9) as out:
+              for file in files: out.write(file)
+          with zipfile.ZipFile('Mi_despensa_webapp_iPhone.zip') as z:
+              assert z.testzip() is None
+              assert set(files)==set(z.namelist())
+          print('ZIP actualizado con todos los recursos de la app')
           PY
-
-      - name: Comprobar que las descargas existen
-        run: |
-          test -s Guia_despensa_30_dias_noviembre_2026.pdf
-          test -s Mi_despensa_webapp_iPhone.zip
-          unzip -t Mi_despensa_webapp_iPhone.zip
-
-      - name: Guardar PDF y ZIP en el repositorio
+      - name: Guardar paquete actualizado
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Guia_despensa_30_dias_noviembre_2026.pdf Mi_despensa_webapp_iPhone.zip datos.json build_pdf.py data.js app.js style.css
+          git add Mi_despensa_webapp_iPhone.zip
           if ! git diff --cached --quiet; then
-            git commit -m "Generar descargas PDF y PWA"
+            git commit -m "Actualizar ZIP de Mi despensa"
             git push
           fi
