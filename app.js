@@ -84,17 +84,17 @@
       '<button class="secondary" type="button" data-go="despensa">Revisar lo que tengo ('+inHouse+' envases)</button></div>';
     html+='<label class="search-label">Buscar en la compra<input id="shopping-search" type="search" value="'+esc(shoppingQuery)+'" placeholder="Buscar producto…"></label>';
     html+='<div class="list">';
-    for(const row of shown){
+    for(const row of lines){
       const key=state.plan+':'+state.people+':'+row.id;
       const marked=!!state.checked[key];
       const description='En casa: '+row.owned+' · Objetivo: '+row.target+' envases';
-      html+='<label class="item '+(marked?'done':'')+'"><input type="checkbox" data-purchased="'+esc(key)+'" '+(marked?'checked':'')+
+      html+='<label class="item '+(marked?'done':'')+'" data-shop-filter="'+esc(M.fold(row.product.name))+'" data-shop-price="'+row.total+'" '+(M.fold(row.product.name).includes(M.fold(shoppingQuery))?'':'hidden')+'><input type="checkbox" data-purchased="'+esc(key)+'" '+(marked?'checked':'')+
         ' aria-label="Marcar compra de '+esc(row.product.name)+'"><div><div class="itemname">'+esc(row.product.name)+
         '</div><div class="itemmeta">'+esc(row.product.size)+' · '+row.buy+' por comprar · '+esc(description)+
         '</div></div><div class="price">'+money(row.total)+'</div></label>';
     }
     html+='</div><p class="muted small">Total pendiente: '+money(lines.reduce((sum,row)=>sum+row.total,0))+
-      ' · En esta búsqueda: '+money(cost)+'. Marcar «comprado» no modifica automáticamente lo que tienes en casa.</p>';
+      ' · En esta búsqueda: <span id="shown-subtotal">'+money(cost)+'</span>. Marcar «comprado» no modifica automáticamente lo que tienes en casa.</p>';
     return html;
   }
 
@@ -174,7 +174,7 @@
     html+='<div class="list pantry-list">';
     for(const [id,p] of Object.entries(D.products)){
       const qty=saleCount(id),bad=hasFood(id);
-      html+='<div class="pantry-item" data-filter="'+esc(M.fold(p.name))+'"><label class="pantry-available">'+
+      html+='<div class="pantry-item" data-filter="'+esc(M.fold(p.name))+'" '+(M.fold(p.name).includes(M.fold(pantryQuery))?'':'hidden')+'><label class="pantry-available">'+
         '<input type="checkbox" data-have="'+id+'" '+(qty?'checked':'')+' aria-label="Tengo '+esc(p.name)+'">'+
         '<span><strong>'+esc(p.name)+'</strong><small>'+esc(p.size)+'</small></span></label>'+
         '<div class="counter"><button type="button" data-inventory="'+id+'" data-delta="-1" aria-label="Restar un envase de '+esc(p.name)+'">−</button>'+
@@ -309,7 +309,18 @@
         item.hidden=!!query && !(item.dataset.filter||'').includes(query);
       });
     }
-    if(event.target.id==='shopping-search') shoppingQuery=event.target.value;
+    if(event.target.id==='shopping-search'){
+      shoppingQuery=event.target.value;
+      const query=M.fold(shoppingQuery);
+      let subtotal=0;
+      document.querySelectorAll('[data-shop-filter]').forEach(item=>{
+        const show=!query||(item.dataset.shopFilter||'').includes(query);
+        item.hidden=!show;
+        if(show)subtotal+=Number(item.dataset.shopPrice)||0;
+      });
+      const total=$('#shown-subtotal');
+      if(total)total.textContent=money(subtotal);
+    }
   });
   $('#content').addEventListener('keydown',event=>{
     if(event.key==='Enter' && event.target.id==='shopping-search'){event.preventDefault();render();}
