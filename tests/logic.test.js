@@ -7,9 +7,9 @@ for(const file of ['data.js','logic.js']) vm.runInThisContext(fs.readFileSync(fi
 const D=global.COCINA_DATA,M=global.COCINA_LOGIC;
 const empty={dislikedIngredients:[],dislikedRecipes:[]};
 const opts=(plan='basico',extra={})=>Object.assign({plan,people:1,inventory:{},prefs:empty,overrides:{},onlyMenu:false},extra);
-assert.equal(D.recipes.length,40,'Deben existir 40 recetas');
+assert.equal(D.recipes.length,180,'Deben existir 180 recetas');
 assert.equal(D.menus.length,28,'El menú mensual debe contener 28 días');
-assert.equal(Object.keys(M.amounts).length,40,'Cada receta debe tener cantidades orientativas');
+assert.equal(Object.keys(M.amounts).length,180,'Cada receta debe tener cantidades orientativas');
 for(const r of D.recipes){
   assert.ok(M.amounts[r.id],'Faltan ingredientes: '+r.id);
   for(const [id,amount] of Object.entries(M.amounts[r.id])){
@@ -57,5 +57,29 @@ assert.ok(html.includes('./logic.js'),'La página debe cargar el motor');
 assert.ok(html.includes('data-tab="gustos"') && html.includes('data-tab="despensa"'),'Las pestañas nuevas están disponibles');
 for(const text of ['recipe-search','data-recipe-link','data-have','data-dislike-ingredient','version.json','visibilitychange','pageshow'])
   assert.ok(app.includes(text),'Falta función '+text);
-assert.equal(JSON.parse(fs.readFileSync('version.json','utf8')).version,'2026.11.07.2');
-console.log('PRUEBAS OK: 40 recetas, 4 planes, enlaces, preferencias, inventario, cantidades y actualización.');
+assert.equal(JSON.parse(fs.readFileSync('version.json','utf8')).version,'2026.11.07.3');
+
+// Comprobar que la búsqueda autocompletable no termina en las 40 recetas originales.
+const macarrones=M.findDislikes('maca',empty);
+assert.ok(macarrones.some(x=>x.type==='ingredient'&&x.id==='pasta'&&M.fold(x.label).includes('macarrones')),
+  'Escribir maca debe sugerir macarrones como ingrediente');
+assert.ok(macarrones.some(x=>x.type==='recipe'&&x.id>40&&M.fold(x.label).includes('macarrones')),
+  'Buscar maca también debe sugerir recetas nuevas con macarrones');
+assert.ok(M.findDislikes('maca',empty).length>=10,'Debe haber bastantes sugerencias de macarrones');
+assert.ok(M.findDislikes('melocoton',empty).some(x=>x.type==='recipe'&&x.id>100),
+  'Buscar sin tilde debe alcanzar las recetas más recientes');
+assert.ok(M.findDislikes('maca',{dislikedIngredients:['pasta'],dislikedRecipes:[]})
+  .some(x=>x.type==='ingredient'&&x.id==='pasta'&&x.selected),
+  'La sugerencia refleja si ya se ha descartado un ingrediente');
+for(const r of D.recipes){
+  if(String(r.fire)==='0'){
+    assert.ok(!Object.keys(M.amounts[r.id]).some(id=>['arroz','pasta','harina','lenteja_s','garbanzo_s'].includes(id)),
+      'No debe recomendarse alimento seco que necesita cocción en receta sin fuego: '+r.name);
+  }
+}
+assert.equal(new Set(D.recipes.map(r=>M.fold(r.name))).size,D.recipes.length,
+  'Todas las recetas deben tener nombres únicos');
+const autoMenu=M.menu(opts('basico',{prefs:{dislikedIngredients:['pasta'],dislikedRecipes:[113]}}));
+assert.ok(autoMenu.flat().every(id=>!id||!M.amounts[id].pasta),'Las recetas nuevas respetan gustos anteriores');
+
+console.log('PRUEBAS OK: 180 recetas, 4 planes, enlaces, preferencias, inventario, cantidades y actualización.');
