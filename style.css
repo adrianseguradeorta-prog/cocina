@@ -61,3 +61,26 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .preference-grid{grid-template-columns:1fr}
 .card-actions .secondary{width:100%}}
 @media print{.update-banner,.toolbar,.card-actions,.picker-label,.search-label{display:none!important}.meal{page-break-inside:avoid}}
+
+
+/* Recetario ampliado y autocompletado accesible: v2026.11.07.3 */
+.recipe-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:14px;align-items:end}
+.recipe-filters .search-label{margin:12px 0}
+.recipe-filters select{width:100%;border:1px solid #d0ddd4;border-radius:12px;background:#fff;color:#153b35;padding:13px;font-size:16px}
+.dislike-input{display:block;width:100%;background:#fff;color:#173f31;border:2px solid #a5c9b2;border-radius:13px;padding:16px 15px;font-size:17px;min-height:54px}
+.dislike-input:focus{outline:3px solid #9ed6b0;outline-offset:2px}
+.dislike-suggestions{background:#fff;border:1px solid #d6e4d9;border-radius:15px;margin:8px 0 22px;max-height:450px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;box-shadow:0 4px 18px #12271e14}
+.dislike-suggestions>.muted{padding:16px;margin:0}
+.suggest-count{background:#f6faf6;color:#64766b;font-size:12px;font-weight:650;padding:11px 15px;border-bottom:1px solid #edf1ee;position:sticky;top:0;z-index:1}
+.suggest-option{width:100%;display:flex;gap:14px;justify-content:space-between;align-items:center;min-height:58px;background:#fff;border:0;border-bottom:1px solid #eaf0ea;text-align:left;padding:12px 15px;color:#1d4034;cursor:pointer}
+.suggest-option:last-child{border:0}
+.suggest-option strong{display:block;line-height:1.3;font-size:15px}
+.suggest-option small{display:block;color:#758579;font-size:12px;line-height:1.4;margin-top:3px}
+.suggest-option:hover,.suggest-option.focused{background:#eaf4ed}
+.suggest-option.selected{background:#f2f8f2}
+.suggest-action{color:#286649;font-weight:700;font-size:12px;white-space:nowrap}
+.preference-selected{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 24px}
+.preference-selected .pref-item{display:flex;align-items:center;justify-content:space-between}
+.preference-selected .pref-item span{flex:1}
+.preference-selected .pref-item small{display:block;color:#64766d;font-size:11px;margin-top:3px;line-height:1.4}
+@media(max-width:680px){.recipe-filters{grid-template-columns:1fr;gap:0}.preference-selected{grid-template-columns:1fr}.dislike-suggestions{max-height:55vh}.suggest-option{padding:13px 12px}}
