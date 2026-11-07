@@ -7,40 +7,52 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mi despensa">
-<meta name="description" content="Listas de la compra, menús y recetas para tener un mes de comida en casa.">
+<meta name="description" content="Mi despensa: menús adaptables, recetas con lo que tienes, compra y comidas que no te gustan.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="stylesheet" href="./style.css">
-<title>Mi despensa · 30 días</title>
+<title>Mi despensa · compra y recetas</title>
 </head>
 <body>
+<div id="update-banner" class="update-banner" role="status" hidden>
+  <div><strong>Actualización disponible</strong><p id="update-message">Una nueva versión está preparada.</p></div>
+  <button id="update-now" type="button">Actualizar ahora</button>
+</div>
 <header>
   <div class="brand"><div class="logo" aria-hidden="true">◒</div><div><small>PLAN DOMÉSTICO · NOVIEMBRE 2026</small><h1>Mi despensa</h1></div></div>
   <div class="header-actions"><a class="print" href="./Guia_despensa_30_dias_noviembre_2026.pdf" target="_blank" rel="noopener">Guía PDF</a><button class="print" type="button" onclick="window.print()">Imprimir</button></div>
 </header>
 <main>
 <section class="hero">
-  <div><span class="eyebrow">PREPARADOS PARA 30 DÍAS</span><h2>Comer bien, incluso si se va la luz.</h2><p>Tu compra, tus menús y tus recetas, organizados en un solo sitio. Después de abrirla una vez, puedes consultarla sin conexión.</p></div>
-  <div class="hero-stat"><span>Presupuesto estimado</span><strong id="budget">—</strong><small id="budgetdesc">1 adulto · 30 días</small></div>
+  <div><span class="eyebrow">PLANIFICADOR PERSONALIZADO</span><h2>Comer bien, incluso si se va la luz.</h2><p>Marca lo que tienes, descarta lo que no te gusta y consulta al instante tus recetas, tu menú y la compra pendiente.</p></div>
+  <div class="hero-stat"><span>Compra pendiente estimada</span><strong id="budget">—</strong><small id="budgetdesc">1 adulto · 28 días</small></div>
 </section>
 <section class="controls">
   <label>Plan<select id="plan"><option value="basico">Básico</option><option value="equilibrado">Equilibrado</option><option value="comodo">Cómodo</option><option value="sinfuego">Semana sin fuego</option></select></label>
   <label>Personas<input id="people" type="number" min="1" max="20" value="1"></label>
-  <label>Buscar<input id="search" type="search" placeholder="Arroz, lentejas, desayunos..."></label>
+  <div class="control-info">Los menús se adaptan a tus gustos y a lo que tienes. <span>Los cambios se guardan en este dispositivo.</span></div>
 </section>
 <nav id="tabs" aria-label="Secciones de la aplicación">
   <button type="button" data-tab="compra" class="active">Compra</button>
   <button type="button" data-tab="menu">Menús</button>
   <button type="button" data-tab="recetas">Recetas</button>
-  <button type="button" data-tab="seguridad">Sin luz y seguridad</button>
+  <button type="button" data-tab="despensa">Mi despensa</button>
+  <button type="button" data-tab="gustos">No me gusta</button>
+  <button type="button" data-tab="seguridad">Sin luz</button>
   <button type="button" data-tab="fuentes">Fuentes</button>
 </nav>
-<section id="content" aria-live="polite"><p>Preparando listas de compra…</p></section>
-<footer>Precios orientativos de noviembre de 2026; pueden variar por tienda. Las cantidades se calculan por envases completos. No sustituye una dieta individualizada. <a href="./Guia_despensa_30_dias_noviembre_2026.pdf">Consultar la guía completa en PDF</a>.</footer>
+<section id="content" aria-live="polite"><p>Preparando tu despensa…</p></section>
+<footer>
+  Aplicación v2026.11.07.2 · Comprueba nuevas versiones al abrirla o volver a ella, si hay conexión.
+  Precios de referencia de noviembre de 2026; pueden variar por tienda.
+  Menús y cantidades orientativos; adapta la alimentación a tus necesidades.
+  <a href="./Guia_despensa_30_dias_noviembre_2026.pdf">Guía completa (PDF)</a>.
+</footer>
 </main>
-<noscript>Para usar la calculadora y las listas necesitas activar JavaScript en Safari.</noscript>
+<noscript>Para utilizar el menú, las preferencias y la lista de la compra debes activar JavaScript.</noscript>
 <script defer src="./data.js"></script>
+<script defer src="./logic.js"></script>
 <script defer src="./app.js"></script>
 </body>
 </html>
