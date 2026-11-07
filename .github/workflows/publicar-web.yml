@@ -39,8 +39,8 @@ jobs:
           const js = fs.readFileSync('data.js','utf8');
           if(!js.includes('window.COCINA_DATA=')) throw new Error('Faltan datos de la aplicación');
           const d = JSON.parse(js.split('window.COCINA_DATA=')[1].replace(/;\s*$/,''));
-          if(!d.plans || d.recipes.length !== 40 || d.menus.length !== 28) throw new Error('Datos incompletos');
-          console.log('Correcto: 28 días, 40 recetas y planes disponibles');
+          if(!d.plans || d.recipes.length < 180 || d.menus.length !== 28) throw new Error('Datos incompletos');
+          console.log('Correcto: 28 días, 180 recetas y planes disponibles');
           NODE
       - name: Preparar web estática
         run: |
