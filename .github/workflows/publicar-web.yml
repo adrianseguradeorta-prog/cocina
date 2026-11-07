@@ -1,19 +1,6 @@
 name: Publicar Mi despensa para iPhone
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'style.css'
-      - 'data.js'
-      - 'app.js'
-      - 'sw.js'
-      - 'manifest.webmanifest'
-      - 'icon-192.png'
-      - 'icon-512.png'
-      - 'Guia_despensa_30_dias_noviembre_2026.pdf'
-      - '.github/workflows/publicar-web.yml'
   workflow_dispatch:
 
 permissions:
