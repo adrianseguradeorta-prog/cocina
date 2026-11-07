@@ -3,7 +3,7 @@
   const M = window.COCINA_LOGIC;
   if (!M) throw new Error('No se ha cargado el motor de la despensa');
   const D = M.D;
-  const VERSION = '2026.11.07.2';
+  const VERSION = '2026.11.07.3';
   const KEY = 'mi_despensa_estado_v2';
   const $ = selector => document.querySelector(selector);
   const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({
@@ -35,7 +35,7 @@
     } catch (error) { return defaultState(); }
   }
   const state=load();
-  let tab='compra', recipeQuery='', pantryQuery='', shoppingQuery='';
+  let tab='compra', recipeQuery='', pantryQuery='', shoppingQuery='', dislikeQuery='', dislikeActive=-1, recipeCategory='Todas';
   let menuDays=[];
   const saleCount=id=>Math.max(0,Math.min(100,Math.floor(Number(state.inventory[id])||0)));
   function persist() { try {localStorage.setItem(KEY,JSON.stringify(state));}catch(e){console.warn('No se pudo guardar el estado',e);} }
@@ -70,6 +70,7 @@
     else if(tab==='gustos') content.innerHTML=renderPreferences();
     else if(tab==='seguridad') content.innerHTML=renderSafety();
     else content.innerHTML=renderSources();
+    if(tab==='gustos')renderDislikeSuggestions();
   }
 
   function renderShopping(lines) {
@@ -130,15 +131,16 @@
     let html='<div class="section-title"><h2>Recetario de despensa</h2><span class="muted">'+
       liked.length+' recetas compatibles de '+D.recipes.length+'</span></div>'+
       '<p class="muted">Busca por nombre, ingrediente o tipo. Selecciona «No me gusta» para que la receta deje de aparecer en tus menús. Las recetas que contienen ingredientes descartados se ocultan.</p>'+
-      '<label class="search-label">Buscar recetas<input id="recipe-search" type="search" value="'+esc(recipeQuery)+'" placeholder="Pasta, garbanzos, sin fuego…" autocomplete="off"></label>'+
+      '<div class="recipe-filters"><label class="search-label">Buscar recetas<input id="recipe-search" type="search" value="'+esc(recipeQuery)+'" placeholder="Macarrones, garbanzos, sin fuego…" autocomplete="off"></label>'+ 
+      '<label class="search-label">Tipo de receta<select id="recipe-category">'+['Todas',...new Set(D.recipes.map(r=>r.category))].map(c=>'<option value="'+esc(c)+'" '+(recipeCategory===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label></div>'+ 
       '<div class="toolbar"><span class="muted small">'+marked+' recetas excluidas por tus preferencias</span>'+
       '<button type="button" class="secondary" data-go="gustos">Mis preferencias</button></div>';
     html+='<div class="cards recipes" id="recipe-cards">';
     for(const r of liked){
       const req=M.amounts[r.id]||{};
       const available=M.ownedEnough(r,state.inventory);
-      const searchable=M.fold(r.name+' '+r.category+' '+r.ingredients+' '+Object.keys(req).map(id=>D.products[id].name).join(' '));
-      html+='<article class="card recipe-card" id="receta-'+r.id+'" data-filter="'+esc(searchable)+'">'+
+      const searchable=M.fold(r.name+' '+r.category+' '+r.ingredients+' '+Object.keys(req).map(id=>D.products[id].name+' '+(M.ingredientAliases[id]||[]).join(' ')).join(' '));
+      html+='<article class="card recipe-card" id="receta-'+r.id+'" data-category="'+esc(r.category)+'" data-filter="'+esc(searchable)+'">'+
         '<div class="recipe-heading"><span class="pill">'+esc(r.category)+' · '+(String(r.fire)==='0'?'sin fuego':esc(r.fire))+'</span>'+
         (available?'<span class="pill success">Ingredientes en casa</span>':'')+'</div>'+
         '<h3>'+esc(r.name)+'</h3><p><b>Ingredientes:</b> '+esc(r.ingredients)+'</p>'+
@@ -154,7 +156,7 @@
   function filterRecipes() {
     const q=M.fold(recipeQuery);let visible=0;
     document.querySelectorAll('.recipe-card').forEach(card=>{
-      const show=!q || (card.dataset.filter||'').includes(q);
+      const show=(!q || (card.dataset.filter||'').includes(q)) && (recipeCategory==='Todas'||card.dataset.category===recipeCategory);
       card.hidden=!show;
       if(show)visible++;
     });
@@ -204,20 +206,84 @@
       '<a href="#receta-'+r.id+'" data-recipe-link="'+r.id+'">Ver receta y preparación</a></article>';
   }
   function renderPreferences() {
-    const bad=state.prefs.dislikedIngredients,excluded=state.prefs.dislikedRecipes.map(Number);
+    const bad=state.prefs.dislikedIngredients, excluded=state.prefs.dislikedRecipes.map(Number);
     let html='<div class="section-title"><h2>Comidas que no me gustan</h2><span class="muted">'+
-      bad.length+' ingredientes · '+excluded.length+' recetas</span></div>'+
-      '<p class="muted">Los ingredientes marcados se excluyen de todas las recetas propuestas y de la lista de compra. Las recetas que hayas rechazado tampoco aparecen en el menú. Puedes cambiarlo en cualquier momento.</p>'+
-      '<div class="preference-grid">';
-    for(const [id,p] of Object.entries(D.products)){
-      html+='<label class="pref-item"><input type="checkbox" data-dislike-ingredient="'+id+'" '+(bad.includes(id)?'checked':'')+'> '+esc(p.name)+'</label>';
-    }
-    html+='</div><h3>Recetas descartadas</h3>';
-    if(!excluded.length)html+='<p class="muted">Todavía no has descartado ninguna receta individual.</p>';
-    else html+='<div class="list">'+excluded.map(id=>M.byId[id]?'<div class="pref-row"><span>'+esc(M.byId[id].name)+
-      '</span><button type="button" class="secondary" data-toggle-recipe="'+id+'">Volver a incluir</button></div>':'').join('')+'</div>';
+      (bad.length+excluded.length)+' exclusiones</span></div>'+
+      '<p class="muted">Escribe el nombre de un ingrediente o de un plato. Verás sugerencias de <strong>todas las '+D.recipes.length+' recetas</strong>. Por ejemplo, escribe «maca» para encontrar macarrones. Selecciona una opción para excluirla; tócala de nuevo para recuperarla.</p>'+
+      '<label class="search-label" for="dislike-search">Buscar comida o ingrediente que no te gusta</label>'+
+      '<input class="dislike-input" id="dislike-search" type="search" value="'+esc(dislikeQuery)+
+      '" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="dislike-suggestions"'+
+      ' placeholder="Ej.: maca, sardinas, lentejas..." autocomplete="off" spellcheck="false">'+
+      '<div id="dislike-suggestions" class="dislike-suggestions" role="listbox" aria-label="Sugerencias para excluir"></div>';
+    if(bad.length||excluded.length){
+      html+='<div class="section-title"><h3>Ya has marcado</h3><span class="muted">Puedes desmarcar cuando quieras</span></div>'+
+      '<div class="preference-selected">';
+      for(const id of bad){
+        const p=D.products[id];if(!p)continue;
+        html+='<label class="pref-item selected"><input type="checkbox" data-dislike-ingredient="'+esc(id)+
+          '" checked><span>'+esc(M.ingredientName(id))+' <small>ingrediente · '+esc(p.name)+'</small></span></label>';
+      }
+      for(const id of excluded){
+        const r=M.byId[id];if(!r)continue;
+        html+='<div class="pref-item selected"><span>'+esc(r.name)+' <small>receta</small></span>'+
+          '<button class="secondary" type="button" data-toggle-recipe="'+id+'">Quitar</button></div>';
+      }
+      html+='</div>';
+    }else html+='<p class="muted">No has descartado ninguna comida todavía.</p>';
+    html+='<p class="muted small">Si descartas el ingrediente «macarrones / pasta», se excluirán las recetas que contienen pasta. Si descartas únicamente «Macarrones con atún», seguirán disponibles las demás recetas con pasta.</p>';
     return html;
   }
+
+  function renderDislikeSuggestions(){
+    const area=$('#dislike-suggestions');
+    const input=$('#dislike-search');
+    if(!area||!input)return;
+    const query=M.fold(dislikeQuery);
+    if(!query){
+      area.innerHTML='<p class="muted small">Escribe para buscar entre ingredientes y todas las recetas.</p>';
+      input.setAttribute('aria-expanded','false');
+      input.removeAttribute('aria-activedescendant');
+      return;
+    }
+    const matches=M.findDislikes(dislikeQuery,state.prefs);
+    if(!matches.length){
+      area.innerHTML='<p class="empty">No hay coincidencias para «'+esc(dislikeQuery)+'». Prueba con otro nombre.</p>';
+      input.setAttribute('aria-expanded','false');
+      input.removeAttribute('aria-activedescendant');
+      return;
+    }
+    dislikeActive=Math.max(-1,Math.min(dislikeActive,matches.length-1));
+    area.innerHTML='<div class="suggest-count">'+matches.length+' coincidencias en todo el catálogo</div>'+
+      matches.map((hit,i)=>'<button type="button" id="dislike-option-'+i+
+        '" role="option" aria-selected="'+(i===dislikeActive?'true':'false')+'" class="suggest-option '+
+        (i===dislikeActive?'focused ':'')+(hit.selected?'selected':'')+'" data-suggest-type="'+hit.type+
+        '" data-suggest-id="'+esc(hit.id)+'"><span><strong>'+esc(hit.label)+
+        '</strong><small>'+(hit.type==='ingredient'?'Ingrediente':'Receta')+' · '+esc(hit.presentation)+
+        '</small></span><span class="suggest-action">'+(hit.selected?'✓ Marcado':'Añadir')+'</span></button>').join('');
+    input.setAttribute('aria-expanded','true');
+    if(dislikeActive>=0)input.setAttribute('aria-activedescendant','dislike-option-'+dislikeActive);
+    else input.removeAttribute('aria-activedescendant');
+  }
+  function changeDislikeSuggestion(type,id){
+    if(type==='ingredient'){
+      if(!D.products[id])return;
+      state.prefs.dislikedIngredients=arrayToggle(state.prefs.dislikedIngredients,id);
+    }else if(type==='recipe'){
+      id=Number(id);
+      if(!M.byId[id])return;
+      state.prefs.dislikedRecipes=arrayToggle(state.prefs.dislikedRecipes,id);
+    }else return;
+    persist();
+    dislikeActive=-1;
+    render();
+    const input=$('#dislike-search');
+    if(input){
+      input.focus();
+      input.setSelectionRange(input.value.length,input.value.length);
+      renderDislikeSuggestions();
+    }
+  }
+
   function renderSafety() {
     return '<h2>Sin electricidad: prioridades</h2>'+
       '<div class="notice"><b>Seguridad:</b> Nunca uses hornillos, barbacoas, braseros ni generadores de combustión en interiores. No enciendas gas si huele a gas. Consulta siempre el manual del fabricante.</div>'+
@@ -272,6 +338,7 @@
     if(link){event.preventDefault();openRecipe(Number(link.dataset.recipeLink));return;}
     const button=event.target.closest('button');
     if(!button) return;
+    if(button.dataset.suggestType){changeDislikeSuggestion(button.dataset.suggestType,button.dataset.suggestId);return;}
     if(button.dataset.go){go(button.dataset.go);return;}
     if(button.dataset.toggleRecipe){
       state.prefs.dislikedRecipes=arrayToggle(state.prefs.dislikedRecipes,Number(button.dataset.toggleRecipe));
@@ -285,6 +352,7 @@
   });
   $('#content').addEventListener('change',event=>{
     const input=event.target;
+    if(input.id==='recipe-category'){recipeCategory=input.value;filterRecipes();return;}
     if(input.dataset.have){
       state.inventory[input.dataset.have]=input.checked?Math.max(1,saleCount(input.dataset.have)):0;
     }else if(input.dataset.dislikeIngredient){
@@ -301,6 +369,7 @@
     persist();render();
   });
   $('#content').addEventListener('input',event=>{
+    if(event.target.id==='dislike-search'){dislikeQuery=event.target.value;dislikeActive=-1;renderDislikeSuggestions();}
     if(event.target.id==='recipe-search'){recipeQuery=event.target.value;filterRecipes();}
     if(event.target.id==='pantry-search'){
       pantryQuery=event.target.value;
@@ -323,6 +392,34 @@
     }
   });
   $('#content').addEventListener('keydown',event=>{
+    if(event.target.id==='dislike-search'){
+      const suggestions=Array.from(document.querySelectorAll('#dislike-suggestions [data-suggest-type]'));
+      if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+        event.preventDefault();
+        if(suggestions.length){
+          dislikeActive=event.key==='ArrowDown'?(dislikeActive+1)%suggestions.length:
+            (dislikeActive<=0?suggestions.length-1:dislikeActive-1);
+          renderDislikeSuggestions();
+          const active=$('#dislike-option-'+dislikeActive);
+          if(active)active.scrollIntoView({block:'nearest'});
+        }
+        return;
+      }
+      if(event.key==='Enter'&&suggestions.length){
+        event.preventDefault();
+        const selected=suggestions[dislikeActive>=0?dislikeActive:0];
+        if(selected)changeDislikeSuggestion(selected.dataset.suggestType,selected.dataset.suggestId);
+        return;
+      }
+      if(event.key==='Escape'){
+        dislikeQuery='';
+        event.target.value='';
+        dislikeActive=-1;
+        renderDislikeSuggestions();
+        return;
+      }
+    }
+
     if(event.key==='Enter' && event.target.id==='shopping-search'){event.preventDefault();render();}
   });
   // Los cambios en la despensa y en gustos se guardan; la pestaña actual no se interrumpe.
