@@ -1,27 +1,38 @@
 # Mi despensa · 30 días
 
-Aplicación web progresiva (PWA) con listas de compra para 1–20 personas, 28 días de menús, 40 recetas, semana sin fuego y guía PDF imprimible.
+Web app para iPhone con listas de compra para 1–20 personas, menús para 28 días, 40 recetas, semana sin fuego y guía PDF A4.
 
-## Uso en iPhone
+## Ponerla en marcha desde GitHub
 
-Una vez publicado el sitio, abrir la dirección HTTPS en Safari y tocar **Compartir → Añadir a pantalla de inicio**. La app funciona sin conexión después de que se hayan descargado sus recursos en la primera visita. Las compras marcadas se guardan en el teléfono, sin sincronización con otros dispositivos.
+La web está lista para publicarse desde la raíz de la rama `main`; no necesita servidor, base de datos ni compilación.
 
-## Publicación con GitHub Pages
+1. Abrir [Settings → Pages](https://github.com/adrianseguradeorta-prog/cocina/settings/pages).
+2. En **Build and deployment**, elegir **Source: Deploy from a branch**.
+3. Elegir **Branch: main**, carpeta **/(root)** y pulsar **Save**.
 
-El repositorio incluye el workflow `.github/workflows/publicar-web.yml` que verifica los archivos y publica la web con GitHub Actions tras cada cambio en `main`.
+GitHub publica automáticamente el contenido de `main`. La dirección prevista es:
 
-Si GitHub Pages aún no está habilitado, abrir **Settings → Pages → Build and deployment → Source → GitHub Actions**. Después se puede repetir el workflow desde la pestaña Actions. En cuentas GitHub Free, GitHub Pages exige un repositorio público; un repositorio privado requiere un plan compatible con GitHub Pages.
+**https://adrianseguradeorta-prog.github.io/cocina/**
 
-La URL habitual de proyecto (solo una vez activado y desplegado) es `https://adrianseguradeorta-prog.github.io/cocina/`.
+No consideres esa dirección operativa hasta que GitHub muestre que Pages se ha publicado. Esta opción necesita un plan compatible con Pages en repositorios privados (por ejemplo GitHub Pro). En GitHub Free es necesario usar un repositorio público o un servicio de hosting externo, como Vercel. **No cambies el repositorio a público sin valorar qué archivos quieres exponer.**
 
-## Archivos de la aplicación
+Si la opción por rama no está disponible, también existe el workflow manual `Publicar Mi despensa para iPhone` para desplegar mediante **GitHub Actions** una vez habilitada esa fuente en Settings → Pages.
 
-- `index.html`, `style.css`: interfaz adaptada a móvil.
-- `data.js`, `app.js`: menús, ingredientes, calculadora y recetas.
-- `sw.js`, `manifest.webmanifest`, iconos: aplicación instalable y uso sin conexión.
-- `Guia_despensa_30_dias_noviembre_2026.pdf`: guía A4.
-- `Mi_despensa_webapp_iPhone.zip`: copia descargable.
+## Instalarla en iPhone
 
-El contenido de `payload.js` y `bootstrap.js` permanece como copia técnica previa; el sitio publicado carga `data.js` y `app.js` directamente.
+1. Abrir la dirección HTTPS de la web en **Safari**.
+2. Tocar **Compartir → Añadir a pantalla de inicio → Añadir**.
+3. Abrir el nuevo icono «Mi despensa» en la pantalla de inicio.
 
-Los precios son orientativos; deben revisarse en la tienda. No enciendas hornillos o dispositivos de combustión en espacios interiores sin ventilación ni autorización del fabricante.
+Tras cargar todos sus recursos la primera vez, la app permite navegar, consultar menús y marcar compras sin Internet. Los datos de compra se guardan localmente en ese iPhone y no se sincronizan entre dispositivos.
+
+## Archivos
+
+- `index.html` y `style.css`: interfaz.
+- `data.js` y `app.js`: calculadora, menús, recetas y listas.
+- `sw.js`, `manifest.webmanifest` e iconos: uso offline e instalación.
+- `Guia_despensa_30_dias_noviembre_2026.pdf`: PDF A4, también enlazado en la app.
+- `Mi_despensa_webapp_iPhone.zip`: descarga del paquete.
+- `payload.js` y `bootstrap.js`: copia técnica antigua; no se utilizan para iniciar la web publicada.
+
+Los precios son orientativos de noviembre de 2026. Comprueba conservación y seguridad de cada alimento. No utilices hornillos, braseros ni aparatos de combustión no autorizados para interiores dentro de casa.
