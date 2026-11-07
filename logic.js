@@ -28,6 +28,12 @@
     39:{wraps:62,garbanzo_c:150,maiz:50}, 40:{pasta:65,maiz:30,tomate:60}
   };
 
+  // Las recetas nuevas declaran sus cantidades. Los ID históricos conservan las
+  // medidas del primer catálogo para no perder preferencias guardadas.
+  D.recipes.forEach(r=>{
+    if(r.amounts && typeof r.amounts==='object') amounts[r.id]=r.amounts;
+  });
+
   const packs = {
     avena:500,arroz:1000,pasta:1000,lenteja_s:1000,garbanzo_s:1000,
     harina:1000,aceite:1000,tomate:390,leche:1000,garbanzo_c:400,
@@ -49,6 +55,66 @@
     return new Set(fold(text).split(' ').filter(t=>t.length>2 && !ignore.has(t)));
   }
   const byId=Object.fromEntries(D.recipes.map(r=>[r.id,r]));
+
+  // Sinónimos de uso común: escribir «maca» debe encontrar macarrones
+  // aunque el producto se llame simplemente «pasta».
+  const ingredientAliases = {
+    pasta:['macarrones','macarron','macarrón','fideos','pasta seca'],
+    alubia_c:['alubias','judias blancas','judías blancas','habichuelas'],
+    garbanzo_c:['garbanzos','garbanzo'],
+    lenteja_c:['lentejas','lenteja'],
+    lenteja_s:['lentejas','lenteja'],
+    garbanzo_s:['garbanzos','garbanzo'],
+    tomate:['tomate','salsa de tomate','tomate triturado'],
+    atun:['atun','atún','latas de atún'],
+    sardina:['sardinas','sardina'],
+    wraps:['tortillas','wraps','tortitas de trigo'],
+    avena:['copos','gachas','avena'],
+    maiz:['maiz','maíz','choclo'],
+    cacahuete:['cacahuetes','mantequilla de cacahuete','crema de cacahuete'],
+    verduras:['verduras','menestra','macedonia de verduras'],
+    pina:['piña','pina'],
+    melocoton:['melocoton','melocotón']
+  };
+  function ingredientName(id){
+    const aliases=ingredientAliases[id]||[];
+    return aliases[0] || (D.products[id] && D.products[id].name) || id;
+  }
+  function ingredientSearchText(id){
+    const product=D.products[id];
+    return fold([product?product.name:'',...(ingredientAliases[id]||[])].join(' '));
+  }
+  function findDislikes(value, prefs){
+    const query=fold(value);
+    if(!query) return [];
+    const selectedFoods=new Set((prefs&&prefs.dislikedIngredients)||[]);
+    const selectedRecipes=new Set(((prefs&&prefs.dislikedRecipes)||[]).map(Number));
+    const hits=[];
+    const scoreFor=(name,search)=>{
+      const n=fold(name);
+      if(n===query)return 100;
+      if(n.startsWith(query))return 90;
+      if(n.split(' ').some(word=>word.startsWith(query)))return 75;
+      if(search.split(' ').some(word=>word.startsWith(query)))return 65;
+      return search.includes(query)?50:0;
+    };
+    for(const [id,p] of Object.entries(D.products)){
+      const label=ingredientName(id);
+      const search=ingredientSearchText(id);
+      const score=Math.max(scoreFor(label,search),scoreFor(p.name,search));
+      if(score)hits.push({type:'ingredient',id,label,presentation:p.name,selected:selectedFoods.has(id),score:score+5});
+    }
+    for(const r of D.recipes){
+      const title=fold(r.name);
+      // Buscamos en todos los ID, también los nuevos, y en los alias de sus ingredientes.
+      const ingredients=Object.keys(amounts[r.id]||{}).map(ingredientSearchText).join(' ');
+      const terms=fold(r.ingredients+' '+r.category+' '+ingredients);
+      const score=scoreFor(r.name,title+' '+terms);
+      if(score)hits.push({type:'recipe',id:r.id,label:r.name,presentation:r.category,selected:selectedRecipes.has(r.id),score});
+    }
+    return hits.sort((a,b)=>b.score-a.score || Number(b.selected)-Number(a.selected) ||
+      a.label.localeCompare(b.label,'es') || String(a.id).localeCompare(String(b.id),'es'));
+  }
   function unwanted(r, prefs) {
     prefs=prefs||{};
     const badFoods=new Set(prefs.dislikedIngredients||[]);
@@ -148,5 +214,6 @@
     return D.recipes.filter(r=>!unwanted(r,options.prefs||{})&&matchesMeal(r,slot,plan))
       .sort((a,b)=>pantryScore(b,options.inventory||{})-pantryScore(a,options.inventory||{})||a.id-b.id);
   }
-  root.COCINA_LOGIC={D,amounts,packs,byId,fold,unwanted,matchesMeal,ownedEnough,pantryScore,recipeSuggestions,menu,shopping,candidateChoices};
+  root.COCINA_LOGIC={D,amounts,packs,byId,fold,unwanted,matchesMeal,ownedEnough,pantryScore,
+    recipeSuggestions,menu,shopping,candidateChoices,findDislikes,ingredientAliases,ingredientName};
 })(typeof window !== 'undefined' ? window : globalThis);
