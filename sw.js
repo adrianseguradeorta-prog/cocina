@@ -1,8 +1,8 @@
-/* Mi despensa · v2026.11.07.2
+/* Mi despensa · v2026.11.07.3
  * La instalación de versiones nuevas no interrumpe la sesión actual.
  * La app activa la versión instalada cuando el usuario acepta el aviso.
  */
-const CACHE='mi-despensa-v2026.11.07.2';
+const CACHE='mi-despensa-v2026.11.07.3';
 const PRECACHE=[
   './','./index.html','./style.css','./data.js','./logic.js','./app.js',
   './manifest.webmanifest','./icon-192.png','./icon-512.png',
