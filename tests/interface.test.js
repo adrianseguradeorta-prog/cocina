@@ -9,7 +9,7 @@ async function main(){
   const w=dom.window;
   w.scrollTo=()=>{};
   w.Element.prototype.scrollIntoView=function(){};
-  w.fetch=async()=>({ok:true,json:async()=>({version:'2026.11.07.4'})});
+  w.fetch=async()=>({ok:true,json:async()=>({version:'2026.11.07.3'})});
   for(const f of ['data.js','logic.js','app.js'])w.eval(fs.readFileSync(f,'utf8'));
   const $=s=>w.document.querySelector(s);
   const click=(element)=>{assert.ok(element,'Falta elemento');element.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true}));};
@@ -94,7 +94,7 @@ async function main(){
   assert.ok($('[data-only-menu]'));
   change($('[data-only-menu]'),true);
   assert.equal(JSON.parse(w.localStorage.getItem('mi_despensa_estado_v2')).onlyMenu,true);
-  w.fetch=async()=>({ok:true,json:async()=>({version:'2026.11.07.3'})});
+  w.fetch=async()=>({ok:true,json:async()=>({version:'2026.11.07.4'})});
   await new Promise(resolve=>setTimeout(resolve,1600));
   w.dispatchEvent(new w.Event('focus'));
   await new Promise(resolve=>setTimeout(resolve,50));
