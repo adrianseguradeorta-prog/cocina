@@ -24,15 +24,16 @@ jobs:
       - name: Comprobar estructura y sintaxis
         run: |
           node --check data.js
+          node --check logic.js
           node --check app.js
           node --check sw.js
           node - <<'NODE'
           const fs = require('node:fs');
-          for(const name of ['index.html','style.css','data.js','app.js','sw.js','manifest.webmanifest','icon-192.png','icon-512.png','Guia_despensa_30_dias_noviembre_2026.pdf']){
+          for(const name of ['index.html','style.css','data.js','logic.js','app.js','sw.js','manifest.webmanifest','version.json','icon-192.png','icon-512.png','Guia_despensa_30_dias_noviembre_2026.pdf']){
             if(!fs.existsSync(name)) throw new Error('Falta ' + name);
           }
           const html = fs.readFileSync('index.html','utf8');
-          for(const name of ['style.css','data.js','app.js','manifest.webmanifest']){
+          for(const name of ['style.css','data.js','logic.js','app.js','manifest.webmanifest']){
             if(!html.includes('./'+name)) throw new Error('Falta la referencia a '+name);
           }
           const js = fs.readFileSync('data.js','utf8');
@@ -44,7 +45,7 @@ jobs:
       - name: Preparar web estática
         run: |
           mkdir -p _site
-          cp index.html style.css data.js app.js sw.js manifest.webmanifest icon-192.png icon-512.png Guia_despensa_30_dias_noviembre_2026.pdf Mi_despensa_webapp_iPhone.zip _site/
+          cp index.html style.css data.js logic.js app.js sw.js version.json manifest.webmanifest icon-192.png icon-512.png Guia_despensa_30_dias_noviembre_2026.pdf Mi_despensa_webapp_iPhone.zip _site/
           touch _site/.nojekyll
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
